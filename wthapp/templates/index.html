@@ -11,12 +11,14 @@
     <div class="container">
         <h1>Weather Forecast</h1>
     </div>
+
     <form method="POST">
         {% csrf_token %}
         <input type="text" placeholder="Enter City name: " name="city">
         <button type="submit">Search city</button>
         <button type="submit" name="forecast_type" value="5_day">5-Day Forecast</button>
     </form>
+
     {% if error %}
         <p>{{ error }}</p>
     {% else %}
@@ -24,8 +26,8 @@
             <div class="forecast-row">
                 {% for day in forecast %}
                     <div class="forecast-card">
-                        <h3>{{ day.date|date:"D" }}</h3> <!-- Day of the week -->
-                        <p>{{ day.date|time:"H:i" }}</p> <!-- Time -->
+                        <h3>{{ day.date|date:"D" }}</h3>
+                        <p>{{ day.time_period|title }}</p>
                         <img src="http://openweathermap.org/img/wn/{{ day.icon }}.png" alt="Weather Icon" width="50px">
                         <p>{{ day.temp }}°C</p>
                         <p>{{ day.description }}</p>
