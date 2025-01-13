@@ -11,10 +11,8 @@ body {
     color: #fff;
     min-height: 100vh;
     display: flex;
-    justify-content: center;
-    align-items: center;
     flex-direction: column;
-    text-align: center;
+    align-items: center;
     padding: 20px;
 }
 
@@ -57,22 +55,43 @@ button:hover {
 }
 
 /* Forecast Grid Layout */
-.forecast-row {
+.forecast-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.forecast-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.day-headers {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 15px;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 10px;
+    text-align: center;
 }
 
-/* Forecast Cards Styling */
+.day-header h3 {
+    font-size: 1.4rem;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.time-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+}
+
 .forecast-card {
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     padding: 15px;
     text-align: center;
-    color: #fff;
     transition: transform 0.3s ease;
 }
 
@@ -80,51 +99,40 @@ button:hover {
     transform: scale(1.05);
 }
 
-.forecast-card h3 {
-    margin-bottom: 5px;
-    font-size: 1.2rem;
+.time-label {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #fff;
 }
 
-.forecast-card p {
-    margin: 5px 0;
-    font-size: 0.9rem;
-}
-
-img {
-    margin: 5px 0;
-}
-
-/* Current Weather Container */
 .current-weather {
     margin-top: 20px;
     background-color: rgba(255, 255, 255, 0.1);
     padding: 20px;
     border-radius: 10px;
+    text-align: center;
 }
 
 /* Responsive Design */
-@media (max-width: 1000px) {
-    .forecast-row {
+@media (max-width: 768px) {
+    .day-headers,
+    .time-row {
         grid-template-columns: repeat(3, 1fr);
+    }
+    
+    h1 {
+        font-size: 2rem;
     }
 }
 
-@media (max-width: 600px) {
-    .forecast-row {
+@media (max-width: 480px) {
+    .day-headers,
+    .time-row {
         grid-template-columns: repeat(2, 1fr);
-    }
-
-    h1 {
-        font-size: 2rem;
     }
     
     button {
         margin: 5px;
-    }
-}
-
-@media (max-width: 400px) {
-    .forecast-row {
-        grid-template-columns: 1fr;
+        width: 100%;
     }
 }

@@ -1,6 +1,7 @@
 from django.shortcuts import render
 import requests
 import datetime
+from collections import defaultdict
 
 def index(request):
     if 'city' in request.POST:
@@ -15,10 +16,14 @@ def index(request):
 
         if 'list' in data:
             # Dictionary to store forecasts by date
-            forecasts_by_date = {}
+            forecasts_by_date = defaultdict(dict)
+            
+            # Get the first forecast's date as reference for Monday
+            first_forecast_date = None
+            if data['list']:
+                first_forecast_date = datetime.datetime.strptime(data['list'][0]['dt_txt'], '%Y-%m-%d %H:%M:%S').date()
             
             for forecast_entry in data['list']:
-                # Convert timestamp to datetime
                 date_time = datetime.datetime.strptime(forecast_entry['dt_txt'], '%Y-%m-%d %H:%M:%S')
                 date = date_time.date()
                 hour = date_time.hour
@@ -31,31 +36,43 @@ def index(request):
                 elif 18 <= hour <= 23:
                     time_period = 'night'
                 else:
-                    continue  # Skip other hours
+                    continue
 
-                # Store only one forecast per time period per day
-                if date not in forecasts_by_date:
-                    forecasts_by_date[date] = {}
-                
-                if time_period not in forecasts_by_date[date]:
-                    forecasts_by_date[date][time_period] = {
-                        'date': date,
-                        'time_period': time_period,
-                        'temp': forecast_entry['main']['temp'],
-                        'description': forecast_entry['weather'][0]['description'],
-                        'icon': forecast_entry['weather'][0]['icon']
-                    }
+                # For Monday (first day), store all time periods regardless of current time
+                if date == first_forecast_date or date > datetime.date.today():
+                    if time_period not in forecasts_by_date[date]:
+                        forecasts_by_date[date][time_period] = {
+                            'date': date,
+                            'time_period': time_period,
+                            'temp': forecast_entry['main']['temp'],
+                            'description': forecast_entry['weather'][0]['description'],
+                            'icon': forecast_entry['weather'][0]['icon']
+                        }
 
-            # Convert dictionary to list and sort by date
-            forecast = []
+            # If Monday morning is missing, use the first available forecast
+            if first_forecast_date and 'morning' not in forecasts_by_date[first_forecast_date]:
+                first_forecast = data['list'][0]
+                forecasts_by_date[first_forecast_date]['morning'] = {
+                    'date': first_forecast_date,
+                    'time_period': 'morning',
+                    'temp': first_forecast['main']['temp'],
+                    'description': first_forecast['weather'][0]['description'],
+                    'icon': first_forecast['weather'][0]['icon']
+                }
+
+            # Convert to sorted list of days with their forecasts
+            forecast_days = []
             for date in sorted(forecasts_by_date.keys())[:5]:  # Limit to 5 days
-                day_forecasts = forecasts_by_date[date]
-                for period in ['morning', 'midday', 'night']:
-                    if period in day_forecasts:
-                        forecast.append(day_forecasts[period])
+                day_data = {
+                    'date': date,
+                    'morning': forecasts_by_date[date].get('morning'),
+                    'midday': forecasts_by_date[date].get('midday'),
+                    'night': forecasts_by_date[date].get('night')
+                }
+                forecast_days.append(day_data)
 
             context = {
-                'forecast': forecast,
+                'forecast_days': forecast_days,
                 'city': city
             }
         else:
@@ -69,15 +86,11 @@ def index(request):
         data = requests.get(url, params=PARAMS).json()
 
         if 'weather' in data:
-            description = data['weather'][0]['description']
-            icon = data['weather'][0]['icon']
-            temp = data['main']['temp']
-            day = datetime.date.today()
             context = {
-                'description': description,
-                'icon': icon,
-                'temp': temp,
-                'day': day,
+                'description': data['weather'][0]['description'],
+                'icon': data['weather'][0]['icon'],
+                'temp': data['main']['temp'],
+                'day': datetime.date.today(),
                 'city': city
             }
         else:

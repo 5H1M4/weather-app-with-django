@@ -22,17 +22,60 @@
     {% if error %}
         <p>{{ error }}</p>
     {% else %}
-        {% if forecast %}
-            <div class="forecast-row">
-                {% for day in forecast %}
-                    <div class="forecast-card">
-                        <h3>{{ day.date|date:"D" }}</h3>
-                        <p>{{ day.time_period|title }}</p>
-                        <img src="http://openweathermap.org/img/wn/{{ day.icon }}.png" alt="Weather Icon" width="50px">
-                        <p>{{ day.temp }}°C</p>
-                        <p>{{ day.description }}</p>
+        {% if forecast_days %}
+            <div class="forecast-container">
+                <div class="forecast-grid">
+                    <!-- Day Headers -->
+                    <div class="day-headers">
+                        {% for day in forecast_days %}
+                            <div class="day-header">
+                                <h3>{{ day.date|date:"l" }}</h3>
+                            </div>
+                        {% endfor %}
                     </div>
-                {% endfor %}
+
+                    <!-- Morning Row -->
+                    <div class="time-row">
+                        {% for day in forecast_days %}
+                            <div class="forecast-card">
+                                {% if day.morning %}
+                                    <p class="time-label">Morning</p>
+                                    <img src="http://openweathermap.org/img/wn/{{ day.morning.icon }}.png" alt="Weather Icon" width="50px">
+                                    <p>{{ day.morning.temp }}°C</p>
+                                    <p>{{ day.morning.description }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Midday Row -->
+                    <div class="time-row">
+                        {% for day in forecast_days %}
+                            <div class="forecast-card">
+                                {% if day.midday %}
+                                    <p class="time-label">Midday</p>
+                                    <img src="http://openweathermap.org/img/wn/{{ day.midday.icon }}.png" alt="Weather Icon" width="50px">
+                                    <p>{{ day.midday.temp }}°C</p>
+                                    <p>{{ day.midday.description }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Night Row -->
+                    <div class="time-row">
+                        {% for day in forecast_days %}
+                            <div class="forecast-card">
+                                {% if day.night %}
+                                    <p class="time-label">Night</p>
+                                    <img src="http://openweathermap.org/img/wn/{{ day.night.icon }}.png" alt="Weather Icon" width="50px">
+                                    <p>{{ day.night.temp }}°C</p>
+                                    <p>{{ day.night.description }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         {% else %}
             <div class="current-weather">
